@@ -1,66 +1,236 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Sembark URL Shortener
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+A Laravel 12 URL Shortener application with role-based access control, client invitation system, short URL generation, click tracking, and analytics.
 
-## About Laravel
+## Features
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+- **Authentication**: Login/Logout system with session-based authentication
+- **User Roles**: Super Admin, Admin, and Member roles with granular permissions
+- **Client Management**: Super Admin and Admin can invite clients; clients are created with invited status
+- **Invite System**: Email-based invitation with invite token; clients accept invites to set their password and activate their account
+- **Short URL Generation**: Generate short URLs with unique short codes (Admin and Member only)
+- **URL Redirection**: Public short URL redirect (no login required) with automatic hit tracking
+- **URL Analytics**: View URL listings with hit counts, filterable by period (Today, Last Week, Last Month)
+- **Dashboard**: Overview with total URLs and total users count
+- **Settings**: Super Admin can manage project branding (logo, favicon, project name, admin contact details)
+- **Responsive UI**: Built with Bootstrap and AdminLTE-style layout
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+## User Roles & Permissions
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+| Role | Can Generate URLs | Can View URL List | Can Access Settings | URL List Scope |
+|------|------------------|-------------------|---------------------|----------------|
+| Super Admin | ❌ No | ✅ Yes (all URLs) | ✅ Yes | All URLs across all companies |
+| Admin | ✅ Yes | ✅ Yes (own + child clients) | ❌ No | Own URLs + URLs from child clients (where client_id = admin's id) |
+| Member | ✅ Yes | ✅ Yes (own only) | ❌ No | Own URLs only |
 
-## Learning Laravel
+## Database Design
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+### Tables
 
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
+**users**
+- `id` (BIGINT, PK) - Auto-increment
+- `client_id` (BIGINT, nullable, FK → users.id) - NULL for Super Admin and client owner admins
+- `name` (VARCHAR 150) - Client name for owner admins
+- `email` (VARCHAR 190, unique)
+- `password_hash` (VARCHAR 255, nullable) - NULL until invite accepted
+- `role` (ENUM: super_admin, admin, member) - Default: member
+- `status` (ENUM: invited, active) - Default: invited
+- `invite_token` (CHAR 64, unique) - SHA-256 token for invite acceptance
+- `created_at`, `updated_at` (TIMESTAMP)
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+**short_urls**
+- `id` (BIGINT, PK) - Auto-increment
+- `user_id` (BIGINT, FK → users.id)
+- `short_code` (VARCHAR 16, unique)
+- `long_url` (TEXT)
+- `hits` (BIGINT, default 0)
+- `created_at`, `updated_at` (TIMESTAMP)
 
-## Laravel Sponsors
+**url_hits**
+- `id` (BIGINT, PK) - Auto-increment
+- `short_url_id` (BIGINT, FK → short_urls.id)
+- `hit_at` (DATETIME)
+- Index: (short_url_id, hit_at)
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+**cs_theme_admins**
+- Site settings table for logo, favicon, project name, admin contact details
 
-### Premium Partners
+## Installation
 
-- **[Vehikl](https://vehikl.com/)**
-- **[Tighten Co.](https://tighten.co)**
-- **[WebReinvent](https://webreinvent.com/)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel/)**
-- **[Cyber-Duck](https://cyber-duck.co.uk)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Jump24](https://jump24.co.uk)**
-- **[Redberry](https://redberry.international/laravel/)**
-- **[Active Logic](https://activelogic.com)**
-- **[byte5](https://byte5.de)**
-- **[OP.GG](https://op.gg)**
+### Requirements
+- PHP 8.1+
+- Composer
+- MySQL 5.7+
+- Node.js & NPM (for asset compilation)
 
-## Contributing
+### Steps
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+1. **Clone the repository**
+   ```bash
+   git clone https://github.com/YOUR_USERNAME/url-shortner.git
+   cd url-shortner
+   ```
 
-## Code of Conduct
+2. **Install PHP dependencies**
+   ```bash
+   composer install
+   ```
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+3. **Install Node.js dependencies**
+   ```bash
+   npm install
+   ```
 
-## Security Vulnerabilities
+4. **Environment setup**
+   ```bash
+   cp .env.example .env
+   php artisan key:generate
+   ```
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+5. **Configure `.env`**
+   Update the following in your `.env` file:
+   ```env
+   APP_NAME=URL Shortener
+   APP_ENV=local
+   APP_KEY=base64:...
+   APP_DEBUG=true
+   APP_URL=http://127.0.0.1:8000
 
-## License
+   DB_CONNECTION=mysql
+   DB_HOST=127.0.0.1
+   DB_PORT=3306
+   DB_DATABASE=url_shortener
+   DB_USERNAME=your_username
+   DB_PASSWORD=your_password
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+   MAIL_MAILER=smtp
+   MAIL_HOST=smtp.gmail.com
+   MAIL_PORT=587
+   MAIL_USERNAME=your_email@gmail.com
+   MAIL_PASSWORD=your_app_password
+   MAIL_ENCRYPTION=tls
+   MAIL_FROM_ADDRESS=your_email@gmail.com
+   MAIL_FROM_NAME="${APP_NAME}"
+
+   NO_IMAGE=http://127.0.0.1:8000/img/defaultimage.jpg
+   SETTING_IMAGE=http://127.0.0.1:8000/img/uploads/settings/
+   ```
+
+6. **Run migrations and seeders**
+   ```bash
+   php artisan migrate:fresh
+   php artisan db:seed
+   ```
+
+   This creates:
+   - `users` table with seed data (1 Super Admin, 1 Admin client owner, 1 Member)
+   - `short_urls` table with sample short URLs
+   - `url_hits` table for click tracking
+   - `cs_theme_admins` table with default settings
+   - `sessions` table for session storage
+
+7. **Start the development server**
+   ```bash
+   php artisan serve
+   ```
+
+   Visit `http://127.0.0.1:8000` to access the application.
+
+### Default Seed Data
+
+| ID | Name | Email | Role | Status | client_id |
+|----|------|-------|------|--------|-----------|
+| 1 | Super Admin | superadmin@example.com | super_admin | active | NULL |
+| 2 | Sembark Tech | sembark@example.com | admin | active | NULL |
+| 3 | User 2 | user2@example.com | member | active | 2 |
+
+---
+
+## Invite Flow
+
+1. **Super Admin or Admin** visits `/clients/invite-client`
+2. Fills in Client Name, Client Email, and selects Role (Admin or Member)
+3. System creates the user with `status='invited'`, generates an `invite_token`, and sends an email
+4. **Client** receives email with invite link: `/accept-invite/{token}`
+5. Client clicks the link, sets their password
+6. System updates `status='active'`, clears `invite_token`
+7. Client can now login at `/`
+
+---
+
+## URL Short URL Flow
+
+1. **Admin or Member** visits `/urls/generate-url`
+2. Enters the long URL and clicks Generate
+3. System creates a unique 6-character short code and saves to `short_urls` table
+4. **Anyone** can visit `/s/{short_code}` (no login required)
+5. System increments hit count, records the hit in `url_hits`, and redirects to the long URL
+
+---
+
+## URL Analytics
+
+- Visit `/urls/url-list` to see all URLs accessible to your role
+- Filter by period: Today, Last Week, Last Month
+- View total hits per URL within the selected period
+- Reset filter to view all URLs
+
+---
+
+## Project Structure
+
+```
+url-shortner/
+├── app/
+│   ├── Http/Controllers/
+│   │   └── website/
+│   │       ├── ClientController.php
+│   │       ├── Controller.php (base with middleware)
+│   │       ├── DashboardController.php
+│   │       ├── LoginController.php
+│   │       ├── SettingsController.php
+│   │       └── UrlController.php
+│   ├── Mail/
+│   │   └── SendingEmail.php
+│   └── Models/
+│       ├── ShortUrl.php
+│       ├── UrlHit.php
+│       ├── User.php
+│       └── CsThemeAdmin.php
+├── database/
+│   ├── migrations/
+│   └── seeders/
+│       ├── CsThemeAdminSeeder.php
+│       └── DatabaseSeeder.php
+├── resources/views/
+│   └── website/
+│       ├── layouts/
+│       │   ├── master.blade.php
+│         ├── login.blade.php
+│         ├── auth_master.blade.php
+│         ├── elements/
+│       │   ├── main_menu.blade.php
+│         │   ├── message.blade.php
+│       │   └── pagination.blade.php
+│       ├── clients/
+│       │   ├── index.blade.php
+│       │   ├── invite.blade.php
+│       │   └── accept-invite.blade.php
+│       ├── urls/
+│       │   ├── index.blade.php
+│       │   └── generate.blade.php
+│       ├── settings/
+│       │   └── edit.blade.php
+│       └── emails/
+│           └── client-invite.blade.php
+├── routes/web.php
+└── .env
+```
+
+---
+
+## Development Credits
+
+Code debugging provided by **Nemotron-3.5-super-vl AI model** (NVIDIA) Mention Manually by Aman Kumawat.
+
+---
