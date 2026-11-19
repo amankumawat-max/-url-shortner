@@ -6,7 +6,7 @@
             <div class="col-xl-12">
                 <div class="d-flex flex-column h-100">
                     <div class="row g-3">
-                        <div class="col-xl-3 col-md-6">
+                        {{-- <div class="col-xl-3 col-md-6">
                             <div class="card card-animate overflow-hidden mb-2">
                                 <div class="position-absolute start-0" style="z-index: 0;">
                                     <svg version="1.2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 120" width="200" height="120">
@@ -57,7 +57,7 @@
                                     </div>
                                 </div><!-- end card body -->
                             </div><!-- end card -->
-                        </div><!-- end col -->
+                        </div><!-- end col --> --}}
                     </div><!--end row-->
                 </div>
             </div><!--end col-->
