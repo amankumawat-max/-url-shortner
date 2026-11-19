@@ -2,9 +2,6 @@
 
 use Illuminate\Support\Facades\Route;
 
-Route::get('/', function () {
-    return view('welcome');
-});
 
 Route::get('/', [App\Http\Controllers\website\LoginController::class, 'login'])->name('login');
 Route::post('/login-process', [App\Http\Controllers\website\LoginController::class, 'loginprocess'])->name('loginprocess');
@@ -35,6 +32,7 @@ Route::group(['middleware' => 'AdminSession'], function () {
     Route::group(['prefix' => 'urls'], function () {
         Route::any('/url-list', [App\Http\Controllers\website\UrlController::class, 'index'])->name('website.urls.index');
         Route::any('/url-filter-reset', [App\Http\Controllers\website\UrlController::class, 'urllistfilterreset'])->name('website.urls.urllistfilterreset');
+        Route::get('/url-list-export', [App\Http\Controllers\website\UrlController::class, 'urllistexport'])->name('website.urls.urllistexport');
         Route::get('/generate-url', [App\Http\Controllers\website\UrlController::class, 'generate'])->name('website.urls.generate');
         Route::post('/generate-url', [App\Http\Controllers\website\UrlController::class, 'generateStore'])->name('website.urls.generate.store');
     });

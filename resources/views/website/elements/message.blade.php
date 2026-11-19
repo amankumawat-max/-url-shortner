@@ -6,8 +6,8 @@
 @endif
 <script>
     $(document).ready(function () {
-        /* setTimeout(function () {
+        setTimeout(function () {
             $('#flash-message').fadeOut('slow');
-        }, 3000); */
+        }, 3000);
     });
 </script>

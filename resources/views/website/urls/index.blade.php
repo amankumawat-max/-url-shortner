@@ -3,6 +3,7 @@
     <div class="container-fluid mt-3">
         <div class="row">
             <div class="col-12">
+                @include('website.elements.message')
                 <div class="card">
                     <div class="card-header align-items-center d-flex">
                         <h4 class="card-title mb-0 flex-grow-1">URL List</h4>
@@ -14,6 +15,7 @@
                                 <div class="col-lg-3">
                                     <label class="form-label">Period</label>
                                     <select class="form-control" name="period">
+                                        <option value="">Select</option>
                                         <option value="today" {{ (!empty($aryFilterSession) && $aryFilterSession['period'] == 'today') ? 'selected' : '' }}>Today</option>
                                         <option value="last_week" {{ (!empty($aryFilterSession) && $aryFilterSession['period'] == 'last_week') ? 'selected' : '' }}>Last Week</option>
                                         <option value="last_month" {{ (!empty($aryFilterSession) && $aryFilterSession['period'] == 'last_month') ? 'selected' : '' }}>Last Month</option>
@@ -29,6 +31,12 @@
                                     <a class="btn btn-danger w-100" href="{{route('website.urls.urllistfilterreset')}}">Reset</a>
                                 </div>
                                 @endif
+                                <div class="col-lg-1 ps-0">
+                                    <label class="form-label">&nbsp;</label>
+                                    <a class="btn btn-info w-100" href="{{route('website.urls.urllistexport')}}">
+                                        <i class="ri-file-excel-2-line"></i> Export
+                                    </a>
+                                </div>
                             </div>
                         </form>
                     </div>
